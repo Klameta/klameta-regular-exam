@@ -1,4 +1,4 @@
-name: Build, Test
+name: Build Test and Deploy
 
 on:
   push:
@@ -22,6 +22,7 @@ jobs:
       run: npm start &
     - name: Display SoftUni username
       run: echo "klameta"
+
   test-ui-unit:
     runs-on: ubuntu-latest
     needs: build
@@ -42,4 +43,21 @@ jobs:
       run: npm run test:ui
     - name: Run unit tests
       run: npm run test:unit
-    
+      
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test-ui-unit
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+    - name: Deploy to production
+      uses: johnbeynon/render-deploy-action@v0.0.8
+      with:
+        service-id: ${{ secrets.SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_TOKEN }}
+
